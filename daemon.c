@@ -7,6 +7,17 @@
 #include <unistd.h>
 #include <syslog.h>
 #include <string.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
+#define BUFLEN 20  //Max length of buffer
+#define OP_PORT 2189   //The port on which to send data
+
+void die(char *s)
+{
+    perror(s);
+    exit(1);
+}
 
 int main(void) {
         
@@ -57,12 +68,37 @@ int main(void) {
         
     /* Daemon-specific initialization goes here */
     
+
+    //CLIENT CODE START
+    struct sockaddr_in si_other;
+    int s, i, slen=sizeof(si_other);
+    char buf[BUFLEN];
+    char message[BUFLEN];
+ 
+    if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+    {
+        die("socket");
+    }
+ 
+    memset((char *) &si_other, 0, sizeof(si_other));
+    si_other.sin_family = AF_INET;
+    si_other.sin_port = htons(OP_PORT);
+     
+    if (inet_aton(INADDR_BROADCAST , &si_other.sin_addr) == 0) 
+    {
+        fprintf(stderr, "inet_aton() failed\n");
+        exit(1);
+    }
+    //CLIENT CODE END
+
+
     /* The Big Loop */
     while (1) {
         /* Do some task here ... */
         
         switch(STATE){
             case SEARCH:
+                
                 break;
             case PROMPT:
                 break;
