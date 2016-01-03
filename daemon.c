@@ -12,6 +12,7 @@
 
 #define BUFLEN 20  //Max length of buffer
 #define OP_PORT 2189   //The port on which to send data
+#define P_BROADCAST "255.255.255.255"
 
 void die(char *s)
 {
@@ -63,8 +64,8 @@ int main(void) {
         
     /* Close out the standard file descriptors */
     close(STDIN_FILENO);
-    close(STDOUT_FILENO);
-    close(STDERR_FILENO);
+    //close(STDOUT_FILENO);
+    //close(STDERR_FILENO);
         
     /* Daemon-specific initialization goes here */
     
@@ -84,7 +85,7 @@ int main(void) {
     si_other.sin_family = AF_INET;
     si_other.sin_port = htons(OP_PORT);
      
-    if (inet_aton(INADDR_BROADCAST , &si_other.sin_addr) == 0) 
+    if (inet_aton(P_BROADCAST, &si_other.sin_addr) == 0) 
     {
         fprintf(stderr, "inet_aton() failed\n");
         exit(1);
@@ -98,7 +99,8 @@ int main(void) {
         
         switch(STATE){
             case SEARCH:
-                
+                if (sendto(s, message, strlen(message) , 0 , (struct sockaddr *) &si_other, slen)==-1)
+                    die("sendto()");
                 break;
             case PROMPT:
                 break;
@@ -108,7 +110,7 @@ int main(void) {
                 exit(EXIT_FAILURE);
         } 
 
-        sleep(3); /* wait 30 seconds */
+        sleep(3); /* wait 3 seconds */
     }
     exit(EXIT_SUCCESS);
 }
