@@ -12,7 +12,7 @@
 
 #define BUFLEN 20  //Max length of buffer
 #define OP_PORT 2189   //The port on which to send data
-#define P_BROADCAST "255.255.255.255"
+#define P_BROADCAST "192.168.255.255"
 
 void die(char *s)
 {
@@ -75,6 +75,7 @@ int main(void) {
     int s, i, slen=sizeof(si_other);
     char buf[BUFLEN];
     char message[BUFLEN];
+    strcpy(message, "Hello_there!");
  
     if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
