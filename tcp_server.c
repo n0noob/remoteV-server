@@ -9,13 +9,28 @@
 #include <sys/types.h>
 #include <time.h> 
 
+/*No need for this code
+char *dummy_data[] =   {"/home/anoop/a.mp4", 
+                        "/home/anoop/bc.mkv", 
+                        NULL};
+
+int fill_data(char *buffer, char ***ptr){
+    while (**ptr){
+        snprintf(buffer, 1024*sizeof(char), **ptr);
+        snprintf(buffer, 1024*sizeof(buffer), "\n");
+        (*ptr)++;
+    }
+    return 0;
+}
+*/
+
 int main(int argc, char *argv[])
 {
     int listenfd = 0, connfd = 0;
     struct sockaddr_in serv_addr; 
 
-    char sendBuff[1025];
-    time_t ticks; 
+    char sendBuff[1024];
+    //char ***ptr = &dummy_data;
 
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     memset(&serv_addr, '0', sizeof(serv_addr));
@@ -23,7 +38,7 @@ int main(int argc, char *argv[])
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(5000); 
+    serv_addr.sin_port = htons(5000);
 
     bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
 
@@ -31,10 +46,14 @@ int main(int argc, char *argv[])
 
     while(1)
     {
-        connfd = accept(listenfd, (struct sockaddr*)NULL, NULL); 
+        connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
 
-        ticks = time(NULL);
-        snprintf(sendBuff, sizeof(sendBuff), "%.24s\r\n", ctime(&ticks));
+        //Fill the buffer
+        //fill_data(sendBuff, ptr);
+        //
+
+        strcpy(sendBuff, "Hello from the server!\n");
+
         write(connfd, sendBuff, strlen(sendBuff)); 
 
         close(connfd);
