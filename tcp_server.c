@@ -9,13 +9,19 @@
 #include <sys/types.h>
 #include <time.h> 
 
+#define TEST_FILE "./mediafile.list"
+
 
 int main(int argc, char *argv[])
 {
-    int listenfd = 0, connfd = 0;
+    int listenfd = 0, connfd = 0, count = 5;
     struct sockaddr_in serv_addr; 
-
-    char sendBuff[1024];
+    
+    FILE *fp;
+    char * line = NULL;
+    size_t len = 0;
+    ssize_t read;    
+    char sendBuff[8192];
     //char ***ptr = &dummy_data;
 
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -34,31 +40,37 @@ int main(int argc, char *argv[])
     {
         connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
 
-        //Fill the buffer
-        //fill_data(sendBuff, ptr);
-        //
+        if(recv(connfd, sendBuff , 8192 , 0) < 0)
+        {
+            puts("recv failed");
+            exit(EXIT_FAILURE);
+        }
+        puts(sendBuff);
 
-        strcpy(sendBuff, "Hello from the server!\n");
+        if(count == 5)
+        {
+            fp = fopen(TEST_FILE, "r");
+            if (fp == NULL)
+                exit(EXIT_FAILURE);
 
-        write(connfd, sendBuff, strlen(sendBuff)); 
+            while ((read = getline(&line, &len, fp)) != -1) 
+            {
+                //printf("%s", line);
+                write(connfd, line, strlen(line));
+                write(connfd, "$EOL", 4);
+            }
 
+            //strcpy(sendBuff, "Hello from the server!\n");
+            //write(connfd, sendBuff, strlen(sendBuff)); 
+
+            fclose(fp);
+            count = 0;
+        }
+        count ++;
         close(connfd);
         sleep(1);
-     }
-}
-
-
-/*No need for this code
-char *dummy_data[] =   {"/home/anoop/a.mp4", 
-                        "/home/anoop/bc.mkv", 
-                        NULL};
-
-int fill_data(char *buffer, char ***ptr){
-    while (**ptr){
-        snprintf(buffer, 1024*sizeof(char), **ptr);
-        snprintf(buffer, 1024*sizeof(buffer), "\n");
-        (*ptr)++;
     }
-    return 0;
+    if (line)
+        free(line);
+     return 0;
 }
-*/
