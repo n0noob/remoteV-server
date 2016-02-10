@@ -9,20 +9,6 @@
 #include <sys/types.h>
 #include <time.h> 
 
-/*No need for this code
-char *dummy_data[] =   {"/home/anoop/a.mp4", 
-                        "/home/anoop/bc.mkv", 
-                        NULL};
-
-int fill_data(char *buffer, char ***ptr){
-    while (**ptr){
-        snprintf(buffer, 1024*sizeof(char), **ptr);
-        snprintf(buffer, 1024*sizeof(buffer), "\n");
-        (*ptr)++;
-    }
-    return 0;
-}
-*/
 
 int main(int argc, char *argv[])
 {
@@ -60,3 +46,19 @@ int main(int argc, char *argv[])
         sleep(1);
      }
 }
+
+
+/*No need for this code
+char *dummy_data[] =   {"/home/anoop/a.mp4", 
+                        "/home/anoop/bc.mkv", 
+                        NULL};
+
+int fill_data(char *buffer, char ***ptr){
+    while (**ptr){
+        snprintf(buffer, 1024*sizeof(char), **ptr);
+        snprintf(buffer, 1024*sizeof(buffer), "\n");
+        (*ptr)++;
+    }
+    return 0;
+}
+*/

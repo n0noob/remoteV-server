@@ -9,6 +9,8 @@
 
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
+#define LIST_PATH "./mediafile.list"
+
 
 char *m_files[] = {".mp4", ".mkv", ".mp3", NULL};
 
@@ -33,10 +35,13 @@ bool mediafile_check(char const *file)
 int pwdir(char * path)
 {
 	DIR * d;
+	FILE *fp;
+	fp = fopen(LIST_PATH, "w");
 	d = opendir(path);
 	if(!d)
 	{
 		fprintf(stderr, "Cannot open directory %s\n Error: %s", path, strerror(errno));
+		return -1;
 	}
 	while (1)
 	{
@@ -54,9 +59,11 @@ int pwdir(char * path)
 			if((node->d_type & DT_REG) && (mediafile_check(str)))
 			{
 				if(*(path + strlen(path) - 1) != '/')
-					printf(" %s%s/%s%s\n", ANSI_COLOR_CYAN, path, str, ANSI_COLOR_RESET);
+					fprintf(fp, " %s/%s\n", path, str);
+					//printf(" %s%s/%s%s\n", ANSI_COLOR_CYAN, path, str, ANSI_COLOR_RESET);
 				else
-					printf(" %s%s%s%s\n", ANSI_COLOR_CYAN, path, str, ANSI_COLOR_RESET);
+					fprintf(fp, " %s%s\n", path, str);
+					//printf(" %s%s%s%s\n", ANSI_COLOR_CYAN, path, str, ANSI_COLOR_RESET);
 				
 			}
 
