@@ -11,6 +11,22 @@
 
 #define TEST_FILE "./mediafile.list"
 
+int compare_string(char * a, char * b)
+{
+    int i;
+    if(*b != '$')
+        return 1;
+    for(i = 0; i < 5; i++)
+    {
+        if(*b == NULL)
+            return 1;
+        if(*b != *a)
+            return 1;
+        b++;
+        a++;
+    }
+    return 0;
+}
 
 int main(int argc, char *argv[])
 {
@@ -45,7 +61,11 @@ int main(int argc, char *argv[])
             puts("recv failed");
             exit(EXIT_FAILURE);
         }
-        puts(sendBuff);
+        if(compare_string("$LIST", sendBuff) == 0)
+        {
+            puts("$LIST");
+        }
+        puts("Invalid command recieved");
 
         if(count == 5)
         {
