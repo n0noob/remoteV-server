@@ -67,26 +67,23 @@ int main(int argc, char *argv[])
         }
         puts("Invalid command recieved");
 
-        if(count == 5)
+        fp = fopen(TEST_FILE, "r");
+        if (fp == NULL)
+            exit(EXIT_FAILURE);
+
+        while ((read = getline(&line, &len, fp)) != -1) 
         {
-            fp = fopen(TEST_FILE, "r");
-            if (fp == NULL)
-                exit(EXIT_FAILURE);
-
-            while ((read = getline(&line, &len, fp)) != -1) 
-            {
-                //printf("%s", line);
-                write(connfd, line, strlen(line));
-                write(connfd, "$EOL", 4);
-            }
-
-            //strcpy(sendBuff, "Hello from the server!\n");
-            //write(connfd, sendBuff, strlen(sendBuff)); 
-
-            fclose(fp);
-            count = 0;
+            //printf("%s", line);
+            write(connfd, line, strlen(line));
+            write(connfd, "$EOL", 4);
         }
-        count ++;
+
+        //strcpy(sendBuff, "Hello from the server!\n");
+        //write(connfd, sendBuff, strlen(sendBuff)); 
+
+        fclose(fp);
+        count = 0;
+        
         close(connfd);
         sleep(1);
     }
