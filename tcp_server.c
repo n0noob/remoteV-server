@@ -8,8 +8,13 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h> 
+#include "tcp_server.h"
 
 #define TEST_FILE "./mediafile.list"
+
+COMMAND cmd[] = {{"$LIST", 1}, {"$FUCK", 2}};
+
+const int cmd_count = 2;
 
 int compare_string(char * a, char * b)
 {
@@ -28,9 +33,20 @@ int compare_string(char * a, char * b)
     return 0;
 }
 
+int get_index(char * a)
+{
+    int i;
+    for(i = 0; i < cmd_count; i++)
+    {
+        if(!compare_string(a, cmd[i].flag))
+            return (cmd[i].index);
+    }
+    return -1;
+}
+
 int main(int argc, char *argv[])
 {
-    int listenfd = 0, connfd = 0, count = 5;
+    int listenfd = 0, connfd = 0, index;
     struct sockaddr_in serv_addr; 
     
     FILE *fp;
@@ -61,19 +77,20 @@ int main(int argc, char *argv[])
             puts("recv failed");
             exit(EXIT_FAILURE);
         }
-        if(compare_string("$LIST", sendBuff) == 0)
+        
+        /*if(compare_string("$LIST", sendBuff) == 0)
         {
             puts("$LIST");
-        }
-        puts("Invalid command recieved");
+        }*/
 
+        index = get_index(sendBuff);
+        
         fp = fopen(TEST_FILE, "r");
         if (fp == NULL)
             exit(EXIT_FAILURE);
 
         while ((read = getline(&line, &len, fp)) != -1) 
         {
-            //printf("%s", line);
             write(connfd, line, strlen(line));
             write(connfd, "$EOL", 4);
         }
@@ -83,11 +100,11 @@ int main(int argc, char *argv[])
 
         fclose(fp);
         count = 0;
-        
+
         close(connfd);
         sleep(1);
     }
     if (line)
         free(line);
-     return 0;
+    return 0;
 }
