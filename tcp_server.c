@@ -78,31 +78,39 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
         
-        /*if(compare_string("$LIST", sendBuff) == 0)
-        {
-            puts("$LIST");
-        }*/
-
         index = get_index(sendBuff);
         
-        fp = fopen(TEST_FILE, "r");
-        if (fp == NULL)
-            exit(EXIT_FAILURE);
 
-        while ((read = getline(&line, &len, fp)) != -1) 
+        //FSM
+        switch(index)
         {
-            write(connfd, line, strlen(line));
-            write(connfd, "$EOL", 4);
+            case 1:
+                fp = fopen(TEST_FILE, "r");
+                if (fp == NULL)
+                    exit(EXIT_FAILURE);
+
+                while ((read = getline(&line, &len, fp)) != -1) 
+                {
+                    write(connfd, line, strlen(line));
+                    write(connfd, "$EOL", 4);
+                }
+
+                //strcpy(sendBuff, "Hello from the server!\n");
+                //write(connfd, sendBuff, strlen(sendBuff)); 
+
+                fclose(fp);
+                break;
+            case 2:
+                printf("OHH FUCK recieved!");
+                break;
+            default:
+                printf("Default case!");
+                break;    
         }
 
-        //strcpy(sendBuff, "Hello from the server!\n");
-        //write(connfd, sendBuff, strlen(sendBuff)); 
-
-        fclose(fp);
-        count = 0;
 
         close(connfd);
-        sleep(1);
+            sleep(1);
     }
     if (line)
         free(line);

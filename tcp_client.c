@@ -48,6 +48,17 @@ int main(int argc, char *argv[])
     }
     puts("Data Sent\n");
 
+//-------------------------------------------------
+    sleep(2);
+
+    if( send(sockfd , "$FUCK" , strlen("$FUCK") , 0) < 0)
+    {
+        puts("Send failed");
+        return 1;
+    }
+    puts("Data Sent\n");
+//-------------------------------------------------
+
     while ( (n = read(sockfd, recvBuff, sizeof(recvBuff)-1)) > 0)
     {
         recvBuff[n] = 0;
