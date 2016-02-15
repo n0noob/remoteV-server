@@ -48,6 +48,22 @@ int main(int argc, char *argv[])
     }
     puts("Data Sent\n");
 
+    while ( (n = read(sockfd, recvBuff, sizeof(recvBuff)-1)) > 0)
+    {
+        recvBuff[n] = 0;
+        if(fputs(recvBuff, stdout) == EOF)
+        {
+            printf("\n Error : Fputs error\n");
+        }
+    }
+
+    close(sockfd);
+
+    if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    {
+       printf("\n Error : Connect Failed \n");
+       return 1;
+    }
 //-------------------------------------------------
     sleep(2);
 
@@ -59,14 +75,6 @@ int main(int argc, char *argv[])
     puts("Data Sent\n");
 //-------------------------------------------------
 
-    while ( (n = read(sockfd, recvBuff, sizeof(recvBuff)-1)) > 0)
-    {
-        recvBuff[n] = 0;
-        if(fputs(recvBuff, stdout) == EOF)
-        {
-            printf("\n Error : Fputs error\n");
-        }
-    } 
 
     if(n < 0)
     {

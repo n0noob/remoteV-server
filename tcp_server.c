@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
                 fclose(fp);
                 break;
             case 2:
-                printf("OHH FUCK recieved!");
+                printf("\nOHH FUCK recieved!\n");
                 break;
             default:
                 printf("Default case!");
@@ -110,7 +110,6 @@ int main(int argc, char *argv[])
 
 
         close(connfd);
-            sleep(1);
     }
     if (line)
         free(line);
