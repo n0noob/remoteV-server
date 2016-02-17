@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     char * line = NULL;
     size_t len = 0;
     ssize_t read;    
-    char sendBuff[8192];
+    char sendBuff[2048];
     //char ***ptr = &dummy_data;
 
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -72,14 +72,13 @@ int main(int argc, char *argv[])
     {
         connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
 
-        if(recv(connfd, sendBuff , 8192 , 0) < 0)
+        if(recv(connfd, sendBuff, 2048, 0) < 0)
         {
             puts("recv failed");
             exit(EXIT_FAILURE);
         }
         
         index = get_index(sendBuff);
-        
 
         //FSM
         switch(index)
@@ -107,7 +106,6 @@ int main(int argc, char *argv[])
                 printf("Default case!");
                 break;    
         }
-
 
         close(connfd);
     }

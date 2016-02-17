@@ -20,12 +20,6 @@ int main(int argc, char *argv[])
     memset(recvBuff, '0',sizeof(recvBuff));
     memset(&serv_addr, '0', sizeof(serv_addr));
 
-    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-        printf("\n Error : Could not create socket \n");
-        return 1;
-    }
-
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(5000); 
 
@@ -33,7 +27,13 @@ int main(int argc, char *argv[])
     {
         printf("\n inet_pton error occured\n");
         return 1;
-    } 
+    }
+
+    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        printf("\n Error : Could not create socket \n");
+        return 1;
+    }
 
     if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
@@ -58,12 +58,21 @@ int main(int argc, char *argv[])
     }
 
     close(sockfd);
+    
+    //Trying to reconnect the socket
+
+    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        printf("\n Error : Could not create socket \n");
+        return 1;
+    }
 
     if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
        printf("\n Error : Connect Failed \n");
        return 1;
     }
+
 //-------------------------------------------------
     sleep(2);
 
