@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         if(fputs(recvBuff, stdout) == EOF)
         {
             printf("\n Error : Fputs error\n");
-        }
+       }
     }
 
     close(sockfd);
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 //-------------------------------------------------
     sleep(2);
 
-    if( send(sockfd , "$FUCK" , strlen("$FUCK") , 0) < 0)
+    if( send(sockfd , "$PLYG/home/anoop/a.mp4" , strlen("$PLYG/home/anoop/a.mp4") , 0) < 0)
     {
         puts("Send failed");
         return 1;
@@ -88,7 +88,6 @@ int main(int argc, char *argv[])
     if(n < 0)
     {
         printf("\n Read error \n");
-    } 
-
+    }
     return 0;
 }

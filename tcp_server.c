@@ -12,16 +12,18 @@
 
 #define TEST_FILE "./mediafile.list"
 
-COMMAND cmd[] = {{"$LIST", 1}, {"$FUCK", 2}};
+COMMAND cmd[] = {{"$LIST", 1}, {"$PLYG", 2}, {"$STOP", 3}, {"$PAUS", 4}};
 
-const int cmd_count = 2;
+const int cmd_count = 4;
+const int cmd_len = 5;
+
 
 int compare_string(char * a, char * b)
 {
     int i;
     if(*b != '$')
         return 1;
-    for(i = 0; i < 5; i++)
+    for(i = 0; i < cmd_len; i++)
     {
         if(*b == NULL)
             return 1;
@@ -44,12 +46,50 @@ int get_index(char * a)
     return -1;
 }
 
+
+char * extract_path(char *buffer, int val)
+{
+    int count = 0, path_length;
+    int i;
+    char * temp = buffer;
+    while(*buffer != '0')
+    {
+        buffer++;
+        count++;
+    }
+    path_length = count - cmd_len;
+    if(path_length < 5)
+    {
+        printf("\nPath too short");
+        exit(EXIT_FAILURE);
+    }
+
+    char *x = NULL;
+    x = (char *)malloc((path_length * sizeof(char)) + sizeof(char));
+    x[path_length] = '\0';
+
+    for(i = 0; i < path_length; i++)
+    {
+        x[i] = temp[i + cmd_len];
+    }
+
+    return x;
+}
+
+int play(char *file)
+{
+    system("mpv \"/home/anoop/The Most Evolved.mp4\"");
+    return 0;
+}
+
+
 int main(int argc, char *argv[])
 {
     int listenfd = 0, connfd = 0, index;
     struct sockaddr_in serv_addr; 
     
     FILE *fp;
+    char *file_path = NULL;
     char * line = NULL;
     size_t len = 0;
     ssize_t read;    
@@ -100,7 +140,8 @@ int main(int argc, char *argv[])
                 fclose(fp);
                 break;
             case 2:
-                printf("\nOHH FUCK recieved!\n");
+                file_path = extract_path(sendBuff, cmd_len);
+                play(file_path);
                 break;
             default:
                 printf("Default case!");
