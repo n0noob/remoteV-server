@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h> 
+#include <limits.h>
 #include "tcp_server.h"
 
 #define TEST_FILE "./mediafile.list"
@@ -52,7 +53,7 @@ char * extract_path(char *buffer, int val)
     int count = 0, path_length;
     int i;
     char * temp = buffer;
-    while(*buffer != '0')
+    while(*buffer != 0)
     {
         buffer++;
         count++;
@@ -78,7 +79,10 @@ char * extract_path(char *buffer, int val)
 
 int play(char *file)
 {
-    system("mpv \"/home/anoop/The Most Evolved.mp4\"");
+    char temp_buff[PATH_MAX + 10 * sizeof(char)];
+    snprintf(temp_buff, PATH_MAX + 10 * sizeof(char), "mpv \"%s\"", file);
+    //printf("%s", temp_buff);
+    system(temp_buff);
     return 0;
 }
 
@@ -97,8 +101,8 @@ int main(int argc, char *argv[])
     //char ***ptr = &dummy_data;
 
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
-    memset(&serv_addr, '0', sizeof(serv_addr));
-    memset(sendBuff, '0', sizeof(sendBuff)); 
+    memset(&serv_addr, 0, sizeof(serv_addr));
+    memset(sendBuff, 0, sizeof(sendBuff)); 
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
