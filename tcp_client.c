@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
                     if(fputs(recvBuff, stdout) == EOF)
                     {
                         printf("\n Error : Fputs error\n");
-                   }
+                    }
                 }
                 if(n < 0)
                 {
@@ -98,7 +98,8 @@ int main(int argc, char *argv[])
                 puts("Data Sent\n");
                 break;
             case '9':
-                system("clear");
+                printf("\033[H\033[J");
+                //system("clear");
                 break;
             case 'n':
                 exit(0);
