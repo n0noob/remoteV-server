@@ -14,7 +14,7 @@
 int main(int argc, char *argv[])
 {
     int sockfd = 0, n = 0;
-    char recvBuff[1024];
+    char recvBuff[1024], ch = 'y';
     struct sockaddr_in serv_addr; 
 
     memset(recvBuff, '0',sizeof(recvBuff));
@@ -29,65 +29,84 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    while (1)
     {
-        printf("\n Error : Could not create socket \n");
-        return 1;
-    }
-
-    if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-    {
-       printf("\n Error : Connect Failed \n");
-       return 1;
-    }
-
-    if( send(sockfd , "$LIST" , strlen("$LIST") , 0) < 0)
-    {
-        puts("Send failed");
-        return 1;
-    }
-    puts("Data Sent\n");
-
-    while ( (n = read(sockfd, recvBuff, sizeof(recvBuff)-1)) > 0)
-    {
-        recvBuff[n] = 0;
-        if(fputs(recvBuff, stdout) == EOF)
+        printf("\n\n********************************************\n");
+        printf("** This is client side of the application **\n");
+        printf("********************************************\n");
+        printf("\nPress n to exit");
+        printf("\nOptions:\n");
+        printf("\t1. Get list (LIST)\n");
+        printf("\t2. Play file (PLYG)\n");
+        printf("\t9. Clear screen\n");
+        ch = getchar();
+        switch(ch)
         {
-            printf("\n Error : Fputs error\n");
-       }
-    }
+            case '1':
+                if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+                {
+                    printf("\n Error : Could not create socket \n");
+                    return 1;
+                }
 
-    close(sockfd);
+                if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+                {
+                   printf("\n Error : Connect Failed \n");
+                   return 1;
+                }
+
+                if( send(sockfd , "$LIST" , strlen("$LIST") , 0) < 0)
+                {
+                    puts("Send failed");
+                    return 1;
+                }
+                puts("Data Sent\n");
+
+                while ( (n = read(sockfd, recvBuff, sizeof(recvBuff)-1)) > 0)
+                {
+                    recvBuff[n] = 0;
+                    if(fputs(recvBuff, stdout) == EOF)
+                    {
+                        printf("\n Error : Fputs error\n");
+                   }
+                }
+                if(n < 0)
+                {
+                    printf("\n Read error \n");
+                }
+
+                close(sockfd);
+                break;
+            case '2':
+                if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+                {
+                    printf("\n Error : Could not create socket \n");
+                    return 1;
+                }
+
+                if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+                {
+                   printf("\n Error : Connect Failed \n");
+                   return 1;
+                }
+
+                if( send(sockfd , "$PLYG/home/anoop/Downloads/Dexter - Season 1 - BRRip - x264 - AC3 5.1 -={SPARROW}=-/Dexter S01 E06 - BRRip - x264 - AC3 5.1 -={SPARROW}=-.mkv" , strlen("$PLYG/home/anoop/Downloads/Dexter - Season 1 - BRRip - x264 - AC3 5.1 -={SPARROW}=-/Dexter S01 E06 - BRRip - x264 - AC3 5.1 -={SPARROW}=-.mkv") , 0) < 0)
+                {
+                    puts("Send failed");
+                    return 1;
+                }
+                puts("Data Sent\n");
+                break;
+            case '9':
+                system("clear");
+                break;
+            case 'n':
+                exit(0);
+            default:
+                printf("Invalid choice!\n");
+                break;
+        }
+    }
     
-    //Trying to reconnect the socket
-
-    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-        printf("\n Error : Could not create socket \n");
-        return 1;
-    }
-
-    if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-    {
-       printf("\n Error : Connect Failed \n");
-       return 1;
-    }
-
-//-------------------------------------------------
-    sleep(2);
-
-    if( send(sockfd , "$PLYG/home/anoop/Downloads/Dexter - Season 1 - BRRip - x264 - AC3 5.1 -={SPARROW}=-/Dexter S01 E06 - BRRip - x264 - AC3 5.1 -={SPARROW}=-.mkv" , strlen("$PLYG/home/anoop/Downloads/Dexter - Season 1 - BRRip - x264 - AC3 5.1 -={SPARROW}=-/Dexter S01 E06 - BRRip - x264 - AC3 5.1 -={SPARROW}=-.mkv") , 0) < 0)
-    {
-        puts("Send failed");
-        return 1;
-    }
-    puts("Data Sent\n");
-//-------------------------------------------------
-
-
-    if(n < 0)
-    {
-        printf("\n Read error \n");
-    }
     return 0;
 }
