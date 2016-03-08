@@ -12,12 +12,25 @@
 #include "tcp_server.h"
 
 #define TEST_FILE "./mediafile.list"
+#define MPV_SOCKET_FILE "/tmp/mpv_socket"
+#define D_BUG
+
 
 COMMAND cmd[] = {{"$LIST", 1}, {"$PLYG", 2}, {"$STOP", 3}, {"$PAUS", 4}};
 
 const int cmd_count = 4;
 const int cmd_len = 5;
+static pid_t mpv_pid = NULL;
 
+int touch(char *fpath){
+    FILE *fp; 
+    if((fp = fopen(fpath, "w")) == NULL){
+        perror("Error: ");
+        exit(EXIT_FAILURE);
+    }
+    fclose(fp);
+    return 0;
+}
 
 int compare_string(char * a, char * b)
 {
@@ -77,13 +90,32 @@ char * extract_path(char *buffer, int val)
     return x;
 }
 
+
 int play(char *file)
 {
-    char temp_buff[PATH_MAX + 10 * sizeof(char)];
-    snprintf(temp_buff, PATH_MAX + 10 * sizeof(char), "mpv \"%s\"", file);
+    //Older_code
+    //char temp_buff[PATH_MAX + 10 * sizeof(char)];
+    //snprintf(temp_buff, PATH_MAX + 10 * sizeof(char), "mpv \"%s\"", file);
     //printf("%s", temp_buff);
-    system(temp_buff);
-    return 0;
+    //system(temp_buff);
+    
+    if(mpv_pid != NULL)
+        return mpv_pid;
+
+    if((mpv_pid = fork()) < 0){
+        printf("Error in forking mpv!");
+        perror("Error: ");
+        exit(2);
+    }
+    else if(mpv_pid == 0){          //for child process
+        touch(MPV_SOCKET_FILE);
+        execl("/bin/mpv", "/bin/mpv", "--input-unix-socket="MPV_SOCKET_FILE, file, NULL);
+        exit(EXIT_SUCCESS);
+        // Third parameter "--input-unix-socket=/tmp/mpvsocket", 
+    }
+    else{
+        return mpv_pid;
+    }
 }
 
 
@@ -97,13 +129,12 @@ int main(int argc, char *argv[])
     char * line = NULL;
     size_t len = 0;
     ssize_t read;    
-    char sendBuff[2048];
+    char rcvBuff[2048];
     //char ***ptr = &dummy_data;
 
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     memset(&serv_addr, 0, sizeof(serv_addr));
-    memset(sendBuff, 0, sizeof(sendBuff)); 
-
+    
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_addr.sin_port = htons(5000);
@@ -115,22 +146,26 @@ int main(int argc, char *argv[])
     while(1)
     {
         connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
+        memset(rcvBuff, 0, sizeof(rcvBuff)); 
 
-        if(recv(connfd, sendBuff, 2048, 0) < 0)
+        if(recv(connfd, rcvBuff, 2048, 0) < 0)
         {
             puts("recv failed");
+            perror("Error: ");
             exit(EXIT_FAILURE);
         }
         
-        index = get_index(sendBuff);
+        index = get_index(rcvBuff);
 
         //FSM
         switch(index)
         {
             case 1:
                 fp = fopen(TEST_FILE, "r");
-                if (fp == NULL)
+                if (fp == NULL){
+                    perror("Error: ");
                     exit(EXIT_FAILURE);
+                }
 
                 while ((read = getline(&line, &len, fp)) != -1) 
                 {
@@ -138,20 +173,21 @@ int main(int argc, char *argv[])
                     write(connfd, "$EOL", 4);
                 }
 
-                //strcpy(sendBuff, "Hello from the server!\n");
-                //write(connfd, sendBuff, strlen(sendBuff)); 
+                //strcpy(rcvBuff, "Hello from the server!\n");
+                //write(connfd, rcvBuff, strlen(rcvBuff)); 
 
                 fclose(fp);
                 break;
+                
             case 2:
-                file_path = extract_path(sendBuff, cmd_len);
+                file_path = extract_path(rcvBuff, cmd_len);
                 play(file_path);
                 break;
+
             default:
                 printf("Default case!");
                 break;    
         }
-
         close(connfd);
     }
     if (line)
