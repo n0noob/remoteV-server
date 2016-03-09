@@ -128,7 +128,13 @@ int mpv_setup(MPV_INSTANCE * instance)
 
 int play(char *file)
 {
+    char command[2048];
+    memset(command, 0, sizeof(command));
+    snprintf(command, 2048, "echo \'{ \"command\": [\"loadfile\", \"%s\"] }\' | socat - /tmp/mpv_socket", file);
     //echo '{ "command": ["loadfile", "/home/anoop/a.mp4"] }' | socat - /tmp/mpv_socket 
+
+    system(command);
+    return 0;
 }
 
 int main(int argc, char *argv[])
@@ -204,7 +210,7 @@ int main(int argc, char *argv[])
 
                 mpv_setup(&mpv_i);
 
-                //play(file_path);
+                play(file_path);
                 break;
 
             default:

@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
     char recvBuff[1024], ch = 'y';
     struct sockaddr_in serv_addr; 
 
-    memset(recvBuff, '0',sizeof(recvBuff));
-    memset(&serv_addr, '0', sizeof(serv_addr));
+    memset(recvBuff, 0, sizeof(recvBuff));
+    memset(&serv_addr, 0, sizeof(serv_addr));
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(5000); 
@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
 
                 close(sockfd);
                 break;
+                
             case '2':
                 if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
                 {
