@@ -20,9 +20,19 @@ COMMAND cmd[] = {{"$LIST", 1}, {"$PLYG", 2}, {"$STOP", 3}, {"$PAUS", 4}};
 
 const int cmd_count = 4;
 const int cmd_len = 5;
-static pid_t mpv_pid = NULL;
+
+typedef struct mpv_ins{
+    pid_t mpv_pid;
+    int instance_count;
+}MPV_INSTANCE;
+
 
 int touch(char *fpath){
+
+    if(access(fpath, F_OK|R_OK) != -1){
+        return 0;
+    }
+
     FILE *fp; 
     if((fp = fopen(fpath, "w")) == NULL){
         perror("Error: ");
@@ -90,40 +100,45 @@ char * extract_path(char *buffer, int val)
     return x;
 }
 
-
-int play(char *file)
+int mpv_setup(MPV_INSTANCE * instance)
 {
-    //Older_code
-    //char temp_buff[PATH_MAX + 10 * sizeof(char)];
-    //snprintf(temp_buff, PATH_MAX + 10 * sizeof(char), "mpv \"%s\"", file);
-    //printf("%s", temp_buff);
-    //system(temp_buff);
-    
-    if(mpv_pid != NULL)
-        return mpv_pid;
+    pid_t pid;
 
-    if((mpv_pid = fork()) < 0){
+    if(instance->instance_count > 0){
+        return -1;
+    }
+
+    if((pid = fork()) < 0){
         printf("Error in forking mpv!");
         perror("Error: ");
         exit(2);
     }
-    else if(mpv_pid == 0){          //for child process
+    else if(pid == 0){          //for child process
         touch(MPV_SOCKET_FILE);
-        execl("/bin/mpv", "/bin/mpv", "--input-unix-socket="MPV_SOCKET_FILE, file, NULL);
-        exit(EXIT_SUCCESS);
-        // Third parameter "--input-unix-socket=/tmp/mpvsocket", 
+        execl("/bin/mpv", "/bin/mpv", "--profile=pseudo-gui", "--input-unix-socket="MPV_SOCKET_FILE, NULL);
+        exit(EXIT_SUCCESS); 
     }
     else{
-        return mpv_pid;
+        instance->mpv_pid = pid;
+        //Still need to check this code
+        instance->instance_count = instance->instance_count + 1;
+        return 0;
     }
 }
 
+int play(char *file)
+{
+    //echo '{ "command": ["loadfile", "/home/anoop/a.mp4"] }' | socat - /tmp/mpv_socket 
+}
 
 int main(int argc, char *argv[])
 {
     int listenfd = 0, connfd = 0, index;
     struct sockaddr_in serv_addr; 
     
+    //mpv's only instance
+    static MPV_INSTANCE mpv_i = {NULL, 0};
+
     FILE *fp;
     char *file_path = NULL;
     char * line = NULL;
@@ -181,7 +196,15 @@ int main(int argc, char *argv[])
                 
             case 2:
                 file_path = extract_path(rcvBuff, cmd_len);
-                play(file_path);
+                
+                if(access(file_path, F_OK|R_OK) == -1){
+                    printf("File is invalid!");
+                    break;
+                }
+
+                mpv_setup(&mpv_i);
+
+                //play(file_path);
                 break;
 
             default:
