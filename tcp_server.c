@@ -16,7 +16,7 @@
 #define D_BUG
 
 
-COMMAND cmd[] = {{"$LIST", 1}, {"$PLYG", 2}, {"$STOP", 3}, {"$PAUS", 4}};
+COMMAND cmd[] = {{"$LIST", 1}, {"$PLAY", 2}, {"$STOP", 3}, {"$PAUS", 4}};
 
 const int cmd_count = 4;
 const int cmd_len = 5;
@@ -126,14 +126,49 @@ int mpv_setup(MPV_INSTANCE * instance)
     }
 }
 
-int play(char *file)
+int mpv_play(char *file)
 {
     char command[2048];
     memset(command, 0, sizeof(command));
     snprintf(command, 2048, "echo \'{ \"command\": [\"loadfile\", \"%s\"] }\' | socat - /tmp/mpv_socket", file);
-    //echo '{ "command": ["loadfile", "/home/anoop/a.mp4"] }' | socat - /tmp/mpv_socket 
 
     system(command);
+    return 0;
+}
+
+int mpv_stop(MPV_INSTANCE * instance)
+{
+    char command[2048];
+
+    if(instance->instance_count == 0){
+        printf("Error : Player not running");
+        return -1;
+    }
+
+    memset(command, 0, sizeof(command));
+    snprintf(command, 2048, "echo \'{ \"command\": [\"stop\"] }\' | socat - /tmp/mpv_socket");
+
+    system(command);
+    instance->instance_count = 0;
+    instance->mpv_pid = NULL;
+
+    return 0;
+}
+
+int mpv_pause(MPV_INSTANCE * instance)
+{
+    char command[2048];
+
+    if(instance->instance_count == 0){
+        printf("Error : Player not running");
+        return -1;
+    }
+
+    memset(command, 0, sizeof(command));
+    snprintf(command, 2048, "echo \'{ \"command\": [\"cycle\", \"pause\"] }\' | socat - /tmp/mpv_socket");
+
+    system(command);
+
     return 0;
 }
 
@@ -210,7 +245,17 @@ int main(int argc, char *argv[])
 
                 mpv_setup(&mpv_i);
 
-                play(file_path);
+                sleep(1);                   //Temporary workaround for parent-child problem
+
+                mpv_play(file_path);
+                break;
+
+            case 3:
+                mpv_stop(&mpv_i);
+                break;
+
+            case 4:
+                mpv_pause(&mpv_i);
                 break;
 
             default:
