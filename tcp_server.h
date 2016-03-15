@@ -6,4 +6,9 @@ typedef struct command{
 	int index;
 }COMMAND;
 
+typedef struct mpv_ins{
+    pid_t mpv_pid;
+    int instance_count;
+}MPV_INSTANCE;
+
 #endif

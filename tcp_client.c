@@ -39,7 +39,9 @@ int main(int argc, char *argv[])
         printf("\t1. Get list (LIST)\n");
         printf("\t2. Play file (PLAY)\n");
         printf("\t3. Stop playback (STOP)\n");
-        printf("\t3. Pause playback (PAUS)\n");
+        printf("\t4. Pause playback (PAUS)\n");
+        printf("\t5. Fast forward (FFWD)\n");
+        printf("\t6. Rewind (RWND)\n");
         printf("\t9. Clear screen\n");
         ch = getchar();
         getchar();
@@ -141,6 +143,49 @@ int main(int argc, char *argv[])
                 }
                 puts("Data Sent\n");
                 break;
+
+            case '5':
+                if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+                {
+                    printf("\n Error : Could not create socket \n");
+                    return 1;
+                }
+
+                if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+                {
+                   printf("\n Error : Connect Failed \n");
+                   return 1;
+                }
+
+                if( send(sockfd , "$FFWD" , strlen("$FFWD") , 0) < 0)
+                {
+                    puts("Send failed");
+                    return 1;
+                }
+                puts("Data Sent\n");
+                break;
+
+            case '6':
+                if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+                {
+                    printf("\n Error : Could not create socket \n");
+                    return 1;
+                }
+
+                if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+                {
+                   printf("\n Error : Connect Failed \n");
+                   return 1;
+                }
+
+                if( send(sockfd , "$RWND" , strlen("$RWND") , 0) < 0)
+                {
+                    puts("Send failed");
+                    return 1;
+                }
+                puts("Data Sent\n");
+                break;
+
             case '9':
                 printf("\033[H\033[J");
                 //system("clear");

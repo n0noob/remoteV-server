@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <time.h> 
 #include <limits.h>
+#include <signal.h>
 #include "tcp_server.h"
 
 #define TEST_FILE "./mediafile.list"
@@ -16,15 +17,10 @@
 #define D_BUG
 
 
-COMMAND cmd[] = {{"$LIST", 1}, {"$PLAY", 2}, {"$STOP", 3}, {"$PAUS", 4}};
+COMMAND cmd[] = {{"$LIST", 1}, {"$PLAY", 2}, {"$STOP", 3}, {"$PAUS", 4}, {"$FFWD", 5}, {"$RWND", 6}};
 
-const int cmd_count = 4;
+const int cmd_count = 6;
 const int cmd_len = 5;
-
-typedef struct mpv_ins{
-    pid_t mpv_pid;
-    int instance_count;
-}MPV_INSTANCE;
 
 
 int touch(char *fpath){
@@ -49,7 +45,7 @@ int compare_string(char * a, char * b)
         return 1;
     for(i = 0; i < cmd_len; i++)
     {
-        if(*b == NULL)
+        if(*b == '\0')
             return 1;
         if(*b != *a)
             return 1;
@@ -99,6 +95,14 @@ char * extract_path(char *buffer, int val)
 
     return x;
 }
+
+/*void sigint_handler(int signum)
+{
+    close(connfd);
+    if (line)
+        free(line);
+}
+*/
 
 int mpv_setup(MPV_INSTANCE * instance)
 {
@@ -150,7 +154,7 @@ int mpv_stop(MPV_INSTANCE * instance)
 
     system(command);
     instance->instance_count = 0;
-    instance->mpv_pid = NULL;
+    instance->mpv_pid = 0;
 
     return 0;
 }
@@ -172,13 +176,30 @@ int mpv_pause(MPV_INSTANCE * instance)
     return 0;
 }
 
+int mpv_seek(MPV_INSTANCE * instance, int seconds)
+{
+    char command[2048];
+
+    if(instance->instance_count == 0){
+        printf("Error : Player not running");
+        return -1;
+    }
+
+    memset(command, 0, sizeof(command));
+    snprintf(command, 2048, "echo \'{ \"command\": [\"seek\", \"%d\"] }\' | socat - /tmp/mpv_socket", seconds);
+
+    system(command);
+
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     int listenfd = 0, connfd = 0, index;
     struct sockaddr_in serv_addr; 
     
     //mpv's only instance
-    static MPV_INSTANCE mpv_i = {NULL, 0};
+    static MPV_INSTANCE mpv_i = {0, 0};
 
     FILE *fp;
     char *file_path = NULL;
@@ -188,6 +209,7 @@ int main(int argc, char *argv[])
     char rcvBuff[2048];
     //char ***ptr = &dummy_data;
 
+    //signal(SIGINT, sigint_handler);
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     memset(&serv_addr, 0, sizeof(serv_addr));
     
@@ -256,6 +278,14 @@ int main(int argc, char *argv[])
 
             case 4:
                 mpv_pause(&mpv_i);
+                break;
+
+            case 5:
+                mpv_seek(&mpv_i, 5);
+                break;
+
+            case 6:
+                mpv_seek(&mpv_i, -5);
                 break;
 
             default:
