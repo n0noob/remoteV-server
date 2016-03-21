@@ -1,5 +1,18 @@
 CC=gcc
-CFLAGS=-I.
+CFLAGS= -c -Wall -I.
+DEPS= mpv_func.h
+MAIN_EXE=tcp_server
+OBJ=tcp_server.o mpv_func.o
 
-tcp_server: tcp_server.c mpv_func.c mpv_func.h
-	$(CC) -o tcp_server tcp_server.c mpv_func.c -I -Wall.
+all: tcp_server
+
+$(MAIN_EXE): $(OBJ)
+	$(CC) -o $(MAIN_EXE) $(OBJ)
+
+#%.o: %.c $(DEPS)
+%.o: %.c
+	$(CC) $(CFLAGS) $?
+
+
+clean:
+	-rm *o *.gch tcp_server 

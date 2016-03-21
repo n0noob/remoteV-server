@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <sys/types.h>
+
 #ifndef TCP_SERVER_H
 #define TCP_SERVER_H
 
