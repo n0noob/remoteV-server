@@ -67,7 +67,7 @@ int pwdir(char * path)
 				
 			}
 
-			if(node->d_type & DT_DIR)
+			else if(node->d_type & DT_DIR)
 			{
 				char new_path[PATH_MAX];
 				int path_len = 0;
@@ -90,6 +90,6 @@ int pwdir(char * path)
 
 int main()
 {
-	pwdir("/home/anoop/");
+	pwdir("/home/anoop");
 	return 0;
 }
