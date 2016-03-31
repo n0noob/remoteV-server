@@ -22,6 +22,8 @@ COMMAND cmd[] = {{"$LIST", 1}, {"$PLAY", 2}, {"$STOP", 3}, {"$PAUS", 4}, {"$FFWD
 
 const int cmd_count = 6;
 const int cmd_len = 5;
+int connfd = 0;
+char * line = NULL;
 
 
 int compare_string(char * a, char * b)
@@ -82,18 +84,17 @@ char * extract_path(char *buffer, int val)
     return x;
 }
 
-/*void sigint_handler(int signum)
+void sigint_handler(int signum)
 {
     close(connfd);
     if (line)
         free(line);
 }
-*/
 
 
 int main(int argc, char *argv[])
 {
-    int listenfd = 0, connfd = 0, index;
+    int listenfd = 0, index;
     struct sockaddr_in serv_addr; 
     
     //mpv's only instance
@@ -101,7 +102,7 @@ int main(int argc, char *argv[])
 
     FILE *fp;
     char *file_path = NULL;
-    char * line = NULL;
+    //char * line = NULL;
     size_t len = 0;
     ssize_t read;    
     char rcvBuff[2048];
@@ -164,10 +165,9 @@ int main(int argc, char *argv[])
                 }
 
                 mpv_setup(&mpv_i);
+                sleep(1);
 
-                sleep(1);                   //Temporary workaround for parent-child problem
-
-                mpv_play(file_path);
+                mpv_play(file_path, &mpv_i);
                 break;
 
             case 3:
