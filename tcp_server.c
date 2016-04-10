@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
                 mpv_setup(&mpv_i);
                 sleep(1);
 
-                mpv_play(file_path, &mpv_i);
+                mpv_play(file_path);
                 break;
 
             case 3:
