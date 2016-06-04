@@ -28,8 +28,8 @@ char * line = NULL;
 
 int compare_string(char * a, char * b)
 {
-    int i;
-    if(*b != '$')
+    int i;    
+	if(*b != '$')
         return 1;
     for(i = 0; i < cmd_len; i++)
     {
@@ -45,10 +45,12 @@ int compare_string(char * a, char * b)
 
 int get_index(char * a)
 {
-    int i;
+    int i, x;
     for(i = 0; i < cmd_count; i++)
     {
-        if(!compare_string(a, cmd[i].flag))
+		x = compare_string(a, cmd[i].flag);
+		//printf("String compare ka result: %d\n", x);
+        if(!x)
             return (cmd[i].index);
     }
     return -1;
@@ -83,6 +85,7 @@ char * extract_path(char *buffer, int val)
 
     return x;
 }
+
 
 void sigint_handler(int signum)
 {
@@ -132,6 +135,7 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
         
+        printf("Recieved : #%s#\n", rcvBuff);
         index = get_index(rcvBuff);
 
         //FSM
@@ -144,10 +148,13 @@ int main(int argc, char *argv[])
                     exit(EXIT_FAILURE);
                 }
 
+				write(connfd, "5\n", 2);
+
                 while ((read = getline(&line, &len, fp)) != -1) 
                 {
+					//format_line(line, len);
                     write(connfd, line, strlen(line));
-                    write(connfd, "$EOL", 4);
+                    //write(connfd, "\n", 1);
                 }
 
                 //strcpy(rcvBuff, "Hello from the server!\n");
@@ -158,15 +165,16 @@ int main(int argc, char *argv[])
                 
             case 2:
                 file_path = extract_path(rcvBuff, cmd_len);
-                
+                //printf("File path : %s\n", file_path);
                 if(access(file_path, F_OK|R_OK) == -1){
                     printf("File is invalid!");
                     break;
                 }
-
+                printf("Before mpv setup\n");
                 mpv_setup(&mpv_i);
+                printf("After mpv setup\n");
                 sleep(1);
-
+                printf("Plaing mpv file\n");
                 mpv_play(file_path);
                 break;
 

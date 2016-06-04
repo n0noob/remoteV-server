@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -c -Wall -I.
+CFLAGS= -c -g -Wall -I.
 #DEPS= mpv_func.h
 _SERVER=tcp_server
 _CLIENT=tcp_client
@@ -9,7 +9,7 @@ _C_OBJ=tcp_client.o
 all: tcp_server tcp_client
 
 $(_SERVER): $(_S_OBJ)
-	$(CC) -o $(_SERVER) $(_S_OBJ)
+	$(CC) -o $(_SERVER) -g $(_S_OBJ)
 
 $(_CLIENT): $(_C_OBJ)
 	$(CC) -o $(_CLIENT) $(_C_OBJ)

@@ -26,19 +26,25 @@ int touch(char *fpath){
 int mpv_setup(MPV_INSTANCE * instance)
 {
     pid_t pid;
+	int r;
 
     if(instance->instance_count > 0){
         return -1;
     }
 
+	fflush(stdout);
     if((pid = fork()) < 0){
-        printf("Error in forking mpv!");
+        printf("Error in forking mpv!\n");
         perror("Error: ");
         exit(2);
     }
     else if(pid == 0){          //for child process
-        touch(MPV_SOCKET_FILE);
-        execl("/bin/mpv", "/bin/mpv", "--profile=pseudo-gui", "--input-unix-socket="MPV_SOCKET_FILE, NULL);
+		printf("Control reached child\n");        
+		touch(MPV_SOCKET_FILE);
+        r = execl("/usr/bin/mpv", "/usr/bin/mpv", "--profile=pseudo-gui", "--input-unix-socket="MPV_SOCKET_FILE, NULL);
+		perror("Error: ");
+		if(r != 0)
+			printf("Exec did not execute properly!\n");
         exit(EXIT_SUCCESS); 
     }
     else{

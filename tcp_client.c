@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
                    return 1;
                 }
 
-                if( send(sockfd , "$PLAY/home/anoop/Downloads/Dexter - Season 1 - BRRip - x264 - AC3 5.1 -={SPARROW}=-/Dexter S01 E06 - BRRip - x264 - AC3 5.1 -={SPARROW}=-.mkv" , strlen("$PLAY/home/anoop/Downloads/Dexter - Season 1 - BRRip - x264 - AC3 5.1 -={SPARROW}=-/Dexter S01 E06 - BRRip - x264 - AC3 5.1 -={SPARROW}=-.mkv") , 0) < 0)
+                if( send(sockfd , "$PLAY/home/anoop/a.mp4" , strlen("$PLAY/home/anoop/a.mp4") , 0) < 0)
                 {
                     puts("Send failed");
                     return 1;
