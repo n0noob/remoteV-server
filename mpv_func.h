@@ -7,6 +7,7 @@
 int touch(char *fpath);
 
 int mpv_setup(MPV_INSTANCE * instance);
+int check_mpv_instance(MPV_INSTANCE *instance);
 
 int mpv_play(char *file);
 int mpv_stop(MPV_INSTANCE * instance);

@@ -4,8 +4,14 @@
 #include <unistd.h>
 
 #include "mpv_func.h"
+#include "proc.h"
 
 #define MPV_SOCKET_FILE "/tmp/mpv_socket"
+#define MPV_PATH "/usr/bin/mpv"
+
+#ifndef DBUG
+    #define DBUG
+#endif
 
 
 int touch(char *fpath){
@@ -50,9 +56,24 @@ int mpv_setup(MPV_INSTANCE * instance)
     else{
         instance->mpv_pid = pid;
         //Still need to check this code
-        instance->instance_count = instance->instance_count + 1;
+        instance->instance_count = 1;
         return 0;
     }
+}
+
+int check_mpv_instance(MPV_INSTANCE *instance){
+    if(check_instance(instance->mpv_pid, MPV_PATH) == running){
+        #ifdef DBUG
+        printf("MPV is running!\n");
+        #endif
+    }
+    else{
+        #ifdef DBUG
+        fprintf(stderr, "MPV is not running!\n");
+        #endif
+        instance->instance_count = 0;
+    }
+    return 0;
 }
 
 int mpv_play(char *file)
@@ -70,7 +91,7 @@ int mpv_stop(MPV_INSTANCE * instance)
     char command[2048];
 
     if(instance->instance_count == 0){
-        printf("Error : Player not running");
+        printf("Error : Player not running\n");
         return -1;
     }
 
@@ -89,7 +110,7 @@ int mpv_pause(MPV_INSTANCE * instance)
     char command[2048];
 
     if(instance->instance_count == 0){
-        printf("Error : Player not running");
+        printf("Error : Player not running\n");
         return -1;
     }
 
@@ -106,7 +127,7 @@ int mpv_seek(MPV_INSTANCE * instance, int seconds)
     char command[2048];
 
     if(instance->instance_count == 0){
-        printf("Error : Player not running");
+        printf("Error : Player not running\n");
         return -1;
     }
 

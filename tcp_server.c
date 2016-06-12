@@ -13,14 +13,18 @@
 
 #include "tcp_server.h"
 #include "mpv_func.h"
+#include "proc.h"
 
 #define TEST_FILE "./mediafile.list"
-#define D_BUG
+
+#ifndef DBUG
+    #define DBUG
+#endif
 
 
-COMMAND cmd[] = {{"$LIST", 1}, {"$PLAY", 2}, {"$STOP", 3}, {"$PAUS", 4}, {"$FFWD", 5}, {"$RWND", 6}};
+COMMAND cmd[] = {{"$LIST", 1}, {"$PLAY", 2}, {"$STOP", 3}, {"$PAUS", 4}, {"$FFWD", 5}, {"$RWND", 6}, {"$VOLM", 7}};
 
-const int cmd_count = 6;
+const int cmd_count = 7;
 const int cmd_len = 5;
 int connfd = 0;
 char * line = NULL;
@@ -142,6 +146,7 @@ int main(int argc, char *argv[])
         switch(index)
         {
             case 1:
+                /*LIST command recieved*/
                 fp = fopen(TEST_FILE, "r");
                 if (fp == NULL){
                     perror("Error: ");
@@ -170,28 +175,37 @@ int main(int argc, char *argv[])
                     printf("File is invalid!");
                     break;
                 }
-                printf("Before mpv setup\n");
                 mpv_setup(&mpv_i);
-                printf("After mpv setup\n");
+                //Sleep for 1 second in order to let mpv set itself up
                 sleep(1);
-                printf("Plaing mpv file\n");
+                check_mpv_instance(&mpv_i);
                 mpv_play(file_path);
+                #ifdef DBUG
+                printf("Playing mpv file\n");
+                #endif
                 break;
 
             case 3:
+                check_mpv_instance(&mpv_i);
                 mpv_stop(&mpv_i);
                 break;
 
             case 4:
+                check_mpv_instance(&mpv_i);
                 mpv_pause(&mpv_i);
                 break;
 
             case 5:
+                check_mpv_instance(&mpv_i);
                 mpv_seek(&mpv_i, 5);
                 break;
 
             case 6:
+                check_mpv_instance(&mpv_i);
                 mpv_seek(&mpv_i, -5);
+                break;
+
+            case 7:
                 break;
 
             default:

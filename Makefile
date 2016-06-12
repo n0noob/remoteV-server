@@ -3,7 +3,7 @@ CFLAGS= -c -g -Wall -I.
 #DEPS= mpv_func.h
 _SERVER=tcp_server
 _CLIENT=tcp_client
-_S_OBJ=tcp_server.o mpv_func.o
+_S_OBJ=tcp_server.o mpv_func.o proc.o
 _C_OBJ=tcp_client.o
 
 all: tcp_server tcp_client
