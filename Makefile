@@ -20,4 +20,5 @@ $(_CLIENT): $(_C_OBJ)
 
 
 clean:
-	-rm *o *.gch $(_SERVER) $(_CLIENT) 
+	-rm *o $(_SERVER) $(_CLIENT) 
+#	-rm *o *.gch $(_SERVER) $(_CLIENT) 
